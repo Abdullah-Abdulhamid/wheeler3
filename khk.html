@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eid Cookie Game</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(120deg, #ffcc00, #ff6600);
+            color: white;
+            margin: 0;
+            padding: 0;
+        }
+        #game-container {
+            position: relative;
+            width: 90vw;
+            max-width: 500px;
+            height: 500px;
+            background-color: #ffffff;
+            overflow: hidden;
+            margin: auto;
+            border-radius: 15px;
+            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        .cookie {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        .cookie:active { transform: scale(1.3); }
+        #scoreboard {
+            font-size: 22px;
+            color: #333;
+            margin: 15px;
+            font-weight: bold;
+        }
+        .copyright-footer {
+            font-size: 14px;
+            color: white;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+        }
+        /* "You Won" Message Styling */
+        #won-message {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            font-size: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            flex-direction: column;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 1s ease-in-out;
+        }
+        #won-message.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        #restart-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 20px;
+            background: gold;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        #restart-btn:hover {
+            background: orange;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎉 Eid Mubarak Cookie Game 🎉</h1>
+    <p>Click the cookies to increase your Eid gift!</p>
+
+    <div id="game-container">
+        <div id="scoreboard">Eid Gift: $0 | Time Left: <span id="timer">15</span>s</div>
+    </div>
+    
+    <!-- "You Won" Message -->
+    <div id="won-message">
+        🎉 Eid Mubarak! 🎉<br>
+        Your Eidia is: <span id="final-score"></span>
+        <button id="restart-btn" onclick="restartGame()">Play Again</button>
+    </div>
+
+    <audio id="win-sound" src="كل سنه وانت طيب يا زميلي.mp3"></audio>
+
+    <script>
+        let score = 0;
+        let timeLeft = 15;
+        let gameInterval;
+
+        function startGame() {
+            score = 0;
+            timeLeft = 15;
+            document.getElementById("scoreboard").innerHTML = `Eid Gift: $${score} | Time Left: <span id="timer">${timeLeft}</span>s`;
+
+            gameInterval = setInterval(spawnCookie, 700);
+            let countdown = setInterval(() => {
+                timeLeft--;
+                document.getElementById("timer").textContent = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(gameInterval);
+                    clearInterval(countdown);
+                    showWinMessage();
+                }
+            }, 1000);
+        }
+
+        function spawnCookie() {
+            const cookie = document.createElement("img");
+            cookie.src = "cartoon-kawaii-tempura-transparent-background_1046662-70448-removebg-preview.png";
+            cookie.classList.add("cookie");
+            cookie.style.left = Math.random() * (document.getElementById("game-container").clientWidth - 60) + "px";
+            cookie.style.top = "0px";
+            document.getElementById("game-container").appendChild(cookie);
+
+            function fall() {
+                let top = parseFloat(cookie.style.top) || 0;
+                if (top < 450) {
+                    cookie.style.top = (top + 3) + "px";
+                    requestAnimationFrame(fall);
+                } else {
+                    cookie.remove();
+                }
+            }
+            fall();
+
+            function clickCookie() {
+                score += 20;
+                document.getElementById("scoreboard").innerHTML = `Eid Gift: $${score} | Time Left: <span id="timer">${timeLeft}</span>s`;
+                cookie.remove();
+            }
+
+            cookie.addEventListener("click", clickCookie);
+            cookie.addEventListener("touchstart", clickCookie);
+        }
+
+        function showWinMessage() {
+            document.getElementById("final-score").textContent = `$${score}`;
+            document.getElementById("won-message").classList.add("show");
+            document.getElementById("win-sound").play();
+        }
+
+        function restartGame() {
+            document.getElementById("won-message").classList.remove("show");
+            document.getElementById("game-container").innerHTML = `<div id="scoreboard">Eid Gift: $0 | Time Left: <span id="timer">15</span>s</div>`;
+            startGame();
+        }
+
+        document.addEventListener("DOMContentLoaded", startGame);
+    </script>
+</body>
+</html>
